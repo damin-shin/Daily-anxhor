@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Daily Anchors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;1,9..144,400;1,9..144,500&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EAEBE2;
+    --paper-2:#E1E3D7;
+    --ink:#2E3B36;
+    --ink-soft:#5B6B62;
+    --clay:#9C6B54;
+    --moss:#7A8B7F;
+    --gold:#C9A24B;
+    --line:#CFD2C4;
+    --white:#F6F5EF;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(201,162,75,0.08), transparent 55%),
+      radial-gradient(ellipse at 90% 15%, rgba(122,139,127,0.10), transparent 50%);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    padding:28px 18px 60px;
+  }
+  .wrap{max-width:480px; margin:0 auto;}
+
+  /* ---- header / moon ---- */
+  header{display:flex; align-items:center; gap:16px; margin-bottom:6px;}
+  .moon-wrap{position:relative; width:64px; height:64px; flex:0 0 auto;}
+  .moon-wrap svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .moon-track{fill:none; stroke:var(--line); stroke-width:4;}
+  .moon-fill{fill:none; stroke:var(--gold); stroke-width:4; stroke-linecap:round; transition:stroke-dashoffset .6s ease;}
+  .moon-core{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-size:15px; color:var(--ink-soft); font-weight:450;
+  }
+  .head-text{flex:1;}
+  .eyebrow{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 2px;}
+  h1{font-family:'Fraunces', serif; font-weight:450; font-size:26px; margin:0; line-height:1.15;}
+
+  /* ---- week dots ---- */
+  .week-row{display:flex; gap:7px; margin:20px 0 26px; padding:0 2px;}
+  .week-dot{
+    flex:1; height:6px; border-radius:4px; background:var(--line); position:relative; overflow:hidden;
+  }
+  .week-dot i{position:absolute; inset:0; background:var(--moss); border-radius:4px; transform-origin:left; transform:scaleX(0); transition:transform .4s ease;}
+  .week-dot.today{outline:2px solid var(--clay); outline-offset:2px;}
+  .week-dot.rest i{background:var(--gold);}
+
+  /* ---- rest toggle ---- */
+  .rest-btn{
+    width:100%; text-align:left; background:none; border:1px dashed var(--line); border-radius:14px;
+    padding:12px 14px; font-family:'Work Sans'; font-size:13.5px; color:var(--ink-soft);
+    margin-bottom:22px; cursor:pointer; display:flex; align-items:center; gap:9px;
+  }
+  .rest-btn.active{background:var(--white); border-style:solid; border-color:var(--gold); color:var(--ink);}
+  .rest-btn .dot{width:8px; height:8px; border-radius:50%; background:var(--line); flex:0 0 auto;}
+  .rest-btn.active .dot{background:var(--gold);}
+
+  /* ---- list ---- */
+  .card{
+    background:var(--white);
+    border-radius:20px;
+    padding:6px 4px;
+    box-shadow:0 1px 0 rgba(46,59,54,0.04), 0 8px 24px -14px rgba(46,59,54,0.18);
+    margin-bottom:18px;
+  }
+  .card.dimmed{opacity:.45; pointer-events:none;}
+  .item{
+    display:flex; align-items:center; gap:13px; padding:13px 14px;
+    border-bottom:1px solid #EEEDE4;
+  }
+  .item:last-child{border-bottom:none;}
+  .check{
+    width:23px; height:23px; border-radius:50%; border:1.6px solid var(--moss); flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .18s ease;
+    background:transparent;
+  }
+  .check svg{width:12px; height:12px; opacity:0; transform:scale(.5); transition:all .18s ease;}
+  .item.done .check{background:var(--moss); border-color:var(--moss);}
+  .item.done .check svg{opacity:1; transform:scale(1);}
+  .item.done .label{color:var(--ink-soft); text-decoration:line-through; text-decoration-color:var(--line);}
+  .label{font-size:15px; flex:1; cursor:pointer; user-select:none;}
+
+  .edit-row{display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #EEEDE4;}
+  .edit-row:last-child{border-bottom:none;}
+  .edit-row input{
+    flex:1; border:none; border-bottom:1px solid var(--line); background:transparent;
+    font-family:'Work Sans'; font-size:15px; padding:6px 2px; color:var(--ink);
+  }
+  .edit-row input:focus{outline:none; border-color:var(--clay);}
+  .del{
+    width:26px; height:26px; border-radius:50%; border:none; background:#F0ECE4; color:var(--clay);
+    font-size:15px; cursor:pointer; flex:0 0 auto; line-height:1;
+  }
+  .add-row{display:flex; gap:10px; padding:12px 14px;}
+  .add-row input{flex:1; border:none; border-bottom:1px dashed var(--line); background:transparent; font-family:'Work Sans'; font-size:14.5px; padding:6px 2px;}
+  .add-row input:focus{outline:none; border-color:var(--clay);}
+  .add-btn{
+    background:var(--moss); color:var(--white); border:none; border-radius:10px; padding:0 14px;
+    font-size:13px; cursor:pointer; font-family:'Work Sans'; font-weight:500;
+  }
+
+  .toolbar{display:flex; justify-content:flex-end; margin:-8px 4px 16px;}
+  .toolbar button{
+    background:none; border:none; color:var(--ink-soft); font-size:12.5px; font-family:'Work Sans';
+    text-decoration:underline; cursor:pointer; letter-spacing:.02em;
+  }
+
+  /* ---- reflection ---- */
+  .reflect{margin-top:8px;}
+  .reflect-label{font-family:'Fraunces', serif; font-style:italic; font-size:16px; color:var(--ink); margin-bottom:10px; display:block;}
+  textarea{
+    width:100%; min-height:110px; border:none; border-radius:18px; padding:16px;
+    background:var(--white); font-family:'Work Sans'; font-size:14.5px; color:var(--ink);
+    resize:vertical; box-shadow:0 1px 0 rgba(46,59,54,0.04), 0 8px 24px -14px rgba(46,59,54,0.18);
+    line-height:1.55;
+  }
+  textarea::placeholder{color:#A9AE9E;}
+  textarea:focus{outline:none; box-shadow:0 0 0 2px var(--clay);}
+
+  .save-note{
+    text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:10px; height:14px;
+    opacity:0; transition:opacity .4s ease;
+  }
+  .save-note.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="moon-wrap">
+      <svg viewBox="0 0 64 64">
+        <circle class="moon-track" cx="32" cy="32" r="27"></circle>
+        <circle class="moon-fill" id="moonFill" cx="32" cy="32" r="27" stroke-dasharray="170" stroke-dashoffset="170"></circle>
+      </svg>
+      <div class="moon-core" id="moonPct">0</div>
+    </div>
+    <div class="head-text">
+      <p class="eyebrow" id="eyebrow">today</p>
+      <h1 id="dateHead">—</h1>
+    </div>
+  </header>
+
+  <div class="week-row" id="weekRow"></div>
+
+  <button class="rest-btn" id="restBtn">
+    <span class="dot"></span>
+    <span id="restLabel">Mark today as my rest day</span>
+  </button>
+
+  <div class="toolbar">
+    <button id="editToggle">edit list</button>
+  </div>
+
+  <div class="card" id="listCard"></div>
+
+  <div class="reflect">
+    <span class="reflect-label">How did today feel, overall?</span>
+    <textarea id="reflection" placeholder="Whatever comes up..."></textarea>
+    <p class="save-note" id="saveNote">saved</p>
+  </div>
+
+</div>
+
+<script>
+const DEFAULT_ITEMS = [
+  {id:'activity', label:'Activity — walk, stairs, move the body'},
+  {id:'lang_en', label:'English — expert knowledge / learning'},
+  {id:'lang_zh', label:'Chinese practice'},
+  {id:'lang_fr', label:'French practice'},
+  {id:'lang_de', label:'German practice'},
+  {id:'learn', label:'Learn something — news / business'},
+  {id:'meditation', label:'Meditation'},
+  {id:'share', label:'Share — listen to or talk with someone'},
+  {id:'reply', label:'Reply to at least 2 people'},
+  {id:'reflect_note', label:'Reflect — handwritten, before bed'},
+  {id:'interest', label:'Manifest one interest — poem, music, nature, writing'},
+  {id:'social', label:'Social media post'},
+];
+
+let items = [];
+let today = '';
+let dayData = {checked:{}, restDay:false, reflection:''};
+let editMode = false;
+
+function pad(n){return String(n).padStart(2,'0');}
+function dateKey(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function fmtHead(d){
+  return d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+}
+
+async function loadItems(){
+  try{
+    const r = await window.storage.get('items');
+    items = r ? JSON.parse(r.value) : DEFAULT_ITEMS.slice();
+  }catch(e){
+    items = DEFAULT_ITEMS.slice();
+  }
+}
+async function saveItems(){
+  try{ await window.storage.set('items', JSON.stringify(items)); }catch(e){}
+}
+
+async function loadDay(key){
+  try{
+    const r = await window.storage.get('day:' + key);
+    return r ? JSON.parse(r.value) : {checked:{}, restDay:false, reflection:''};
+  }catch(e){
+    return {checked:{}, restDay:false, reflection:''};
+  }
+}
+async function saveDay(key, data){
+  try{
+    await window.storage.set('day:' + key, JSON.stringify(data));
+    flashSaved();
+  }catch(e){}
+}
+
+let saveTimer;
+function flashSaved(){
+  const n = document.getElementById('saveNote');
+  n.classList.add('show');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=> n.classList.remove('show'), 1200);
+}
+
+function updateMoon(){
+  const total = items.length || 1;
+  const done = items.filter(it => dayData.checked[it.id]).length;
+  const pct = dayData.restDay ? 1 : done/total;
+  const circumference = 170;
+  const offset = circumference - (circumference * pct);
+  document.getElementById('moonFill').style.strokeDashoffset = offset;
+  document.getElementById('moonPct').textContent = dayData.restDay ? '🌙' : `${done}/${total}`;
+}
+
+function renderList(){
+  const card = document.getElementById('listCard');
+  card.classList.toggle('dimmed', dayData.restDay && !editMode);
+  card.innerHTML = '';
+
+  if(editMode){
+    items.forEach((it, idx) => {
+      const row = document.createElement('div');
+      row.className = 'edit-row';
+      row.innerHTML = `<input value="${it.label.replace(/"/g,'&quot;')}" data-idx="${idx}">
+        <button class="del" data-idx="${idx}">×</button>`;
+      card.appendChild(row);
+    });
+    card.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        items[e.target.dataset.idx].label = e.target.value;
+      });
+      inp.addEventListener('blur', saveItems);
+    });
+    card.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = btn.dataset.idx;
+        items.splice(idx,1);
+        await saveItems();
+        renderList();
+      });
+    });
+    const addRow = document.createElement('div');
+    addRow.className = 'add-row';
+    addRow.innerHTML = `<input id="newItemInput" placeholder="Add something...">
+      <button class="add-btn" id="addBtn">Add</button>`;
+    card.appendChild(addRow);
+    document.getElementById('addBtn').addEventListener('click', async () => {
+      const inp = document.getElementById('newItemInput');
+      const val = inp.value.trim();
+      if(!val) return;
+      items.push({id: 'item_' + Date.now(), label: val});
+      await saveItems();
+      renderList();
+    });
+  } else {
+    items.forEach(it => {
+      const done = !!dayData.checked[it.id];
+      const row = document.createElement('div');
+      row.className = 'item' + (done ? ' done' : '');
+      row.innerHTML = `
+        <div class="check">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="label">${it.label}</div>`;
+      row.addEventListener('click', async () => {
+        dayData.checked[it.id] = !dayData.checked[it.id];
+        await saveDay(today, dayData);
+        renderList();
+        updateMoon();
+        renderWeek();
+      });
+      card.appendChild(row);
+    });
+  }
+}
+
+async function renderWeek(){
+  const row = document.getElementById('weekRow');
+  row.innerHTML = '';
+  const now = new Date();
+  const days = [];
+  for(let i=6; i>=0; i--){
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    days.push(d);
+  }
+  for(const d of days){
+    const key = dateKey(d);
+    const isToday = key === today;
+    let data = isToday ? dayData : await loadDay(key);
+    const total = items.length || 1;
+    const doneCount = items.filter(it => data.checked && data.checked[it.id]).length;
+    const pct = data.restDay ? 1 : doneCount/total;
+    const dot = document.createElement('div');
+    dot.className = 'week-dot' + (isToday ? ' today' : '') + (data.restDay ? ' rest' : '');
+    dot.innerHTML = `<i style="transform:scaleX(${pct})"></i>`;
+    row.appendChild(dot);
+  }
+}
+
+async function init(){
+  const now = new Date();
+  today = dateKey(now);
+  document.getElementById('dateHead').textContent = fmtHead(now);
+
+  await loadItems();
+  dayData = await loadDay(today);
+  if(!dayData.checked) dayData.checked = {};
+
+  document.getElementById('reflection').value = dayData.reflection || '';
+  updateRestUI();
+  renderList();
+  updateMoon();
+  await renderWeek();
+
+  document.getElementById('restBtn').addEventListener('click', async () => {
+    dayData.restDay = !dayData.restDay;
+    updateRestUI();
+    await saveDay(today, dayData);
+    renderList();
+    updateMoon();
+    renderWeek();
+  });
+
+  document.getElementById('editToggle').addEventListener('click', () => {
+    editMode = !editMode;
+    document.getElementById('editToggle').textContent = editMode ? 'done editing' : 'edit list';
+    renderList();
+  });
+
+  let reflectTimer;
+  document.getElementById('reflection').addEventListener('input', (e) => {
+    dayData.reflection = e.target.value;
+    clearTimeout(reflectTimer);
+    reflectTimer = setTimeout(() => saveDay(today, dayData), 700);
+  });
+}
+
+function updateRestUI(){
+  const btn = document.getElementById('restBtn');
+  btn.classList.toggle('active', dayData.restDay);
+  document.getElementById('restLabel').textContent = dayData.restDay
+    ? "Today is a rest day 🌙"
+    : "Mark today as my rest day";
+}
+
+init();
+</script>
+</body>
+</html>
